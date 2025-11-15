@@ -1,24 +1,26 @@
 FROM node:18
 
-# Create a non-root user
-RUN groupadd -r result && useradd -r -g result appuser
+# Set working directory
+WORKDIR /app
+
+# Copy package files first
+COPY package*.json ./
+
+# Install dependencies as root (temporary)
+RUN npm ci --omit=dev
+
+# Create non-root user and set ownership
+RUN groupadd -r result && useradd -r -g result appuser \
+    && chown -R appuser:result /app
 
 # Switch to non-root user
 USER appuser
 
-# Set working directory
-WORKDIR /app
-
-# Copy package files and install dependencies
-COPY package*.json ./
-
-RUN npm install
-
 # Copy application code
-COPY . .
+COPY --chown=appuser:result . .
 
-# Expose application port
-EXPOSE 4000
+# Expose correct port
+EXPOSE 8081
 
 # Run the Node.js application
-CMD [ "node", "server.js" ]
+CMD ["node", "server.js"]

@@ -1,0 +1,87 @@
+version: "3.9"
+
+services:
+  # ===========================
+  # FRONTEND TIER
+  # ===========================
+  vote:
+    build: ./vote
+    command: python app.py
+    ports:
+      - "8080:80" # host:container
+    depends_on:
+      redis:
+        condition: service_healthy
+    networks:
+      - frontend
+      - backend
+
+  result:
+    build: ./result
+    environment:
+      - PORT=8081
+    ports:
+      - "8081:8081"
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - frontend
+      - backend
+
+  # Backend tier: internal services
+  worker:
+    build: ./worker
+    depends_on:
+      redis:
+        condition: service_healthy
+      db:
+        condition: service_healthy
+    networks:
+      - backend
+
+  redis:
+    image: redis:7-alpine
+    volumes:
+      - ./healthchecks:/healthchecks:ro
+    healthcheck:
+      test: [ "CMD", "sh", "/healthchecks/redis.sh" ]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    networks:
+      - backend
+
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - ./healthchecks:/healthchecks:ro
+    healthcheck:
+      test: [ "CMD", "sh", "/healthchecks/postgres.sh" ]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    networks:
+      - backend
+
+  # Optional: seed-data to populate votes
+  seed-data:
+    build: ./seed-data
+    command: ./generate-votes.sh
+    depends_on:
+      db:
+        condition: service_healthy
+      vote:
+        condition: service_started
+    networks:
+      - backend
+
+networks:
+  frontend:
+    driver: bridge
+  backend:
+    driver: bridge
+    internal: true
