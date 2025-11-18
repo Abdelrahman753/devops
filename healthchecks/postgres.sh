@@ -1,7 +1,9 @@
 #!/bin/bash
 set -eo pipefail
 
-host="$(hostname -i || echo '127.0.0.1')"
+host="127.0.0.1"
+
+
 user="${POSTGRES_USER:-postgres}"
 db="${POSTGRES_DB:-$POSTGRES_USER}"
 export PGPASSWORD="${POSTGRES_PASSWORD:-}"
