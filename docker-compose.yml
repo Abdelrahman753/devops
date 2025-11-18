@@ -8,9 +8,11 @@ services:
     build: ./vote
     command: python app.py
     ports:
-      - "8080:80" # host:container
+      - "8080:80"
     depends_on:
       redis:
+        condition: service_healthy
+      db:
         condition: service_healthy
     networks:
       - frontend
@@ -42,13 +44,11 @@ services:
 
   redis:
     image: redis:7-alpine
-    volumes:
-      - ./healthchecks:/healthchecks:ro
     healthcheck:
-      test: [ "CMD", "sh", "/healthchecks/redis.sh" ]
+      test: ["CMD", "redis-cli", "ping"]
       interval: 5s
       timeout: 3s
-      retries: 5
+      retries: 10
     networks:
       - backend
 
@@ -57,13 +57,13 @@ services:
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
-    volumes:
-      - ./healthchecks:/healthchecks:ro
+      POSTGRES_DB: postgres
     healthcheck:
-      test: [ "CMD", "sh", "/healthchecks/postgres.sh" ]
-      interval: 5s
-      timeout: 3s
-      retries: 5
+      test: ["CMD-SHELL", "pg_isready -U postgres -d postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
     networks:
       - backend
 
