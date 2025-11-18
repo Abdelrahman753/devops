@@ -121,3 +121,25 @@ The application includes a seed service (`/seed-data`) that can populate the dat
 - Make sure to handle service startup order properly with health checks
 
 Good luck with your challenge! 🚀
+
+## 🚀 Phase 1 — Infrastructure Setup (Completed)
+
+Phase 1 of the project is now fully completed.  
+During this phase, I successfully set up the full Dockerized microservices environment.
+
+### ✔ What was done:
+- Configured **Docker Compose** to orchestrate:
+  - `vote` service (Frontend)
+  - `result` service (Frontend)
+  - `worker` service (Processor)
+  - `redis` for in-memory queue
+  - `postgres` for persistent storage
+- Verified that all containers were running successfully.
+- Confirmed service connectivity (Redis ↔ Worker ↔ Postgres).
+- Ensured ports were exposed correctly:  
+  - Vote → **8080**  
+  - Result → **8081**
+
+### 📸 Screenshot (All containers running)
+
+![Running Containers](./screenshots/containers.png)
