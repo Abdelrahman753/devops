@@ -122,7 +122,7 @@ The application includes a seed service (`/seed-data`) that can populate the dat
 
 Good luck with your challenge! 🚀
 
-## 🚀 Phase 1 — Infrastructure Setup (Completed)
+## 🚀 Phase 1 – Containerization & Local Setup (Completed)
 
 Phase 1 of the project is now fully completed.  
 During this phase, I successfully set up the full Dockerized microservices environment.
